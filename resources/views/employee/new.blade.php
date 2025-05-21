@@ -32,9 +32,9 @@
                 <select class="form-select" id="position" name="position" required>
                     <option selected disabled value="">Seleccionar Posición</option>
                     <option value="cajero">Cajero</option>
-                    <option value="administrador">Administrador</option>
-                    <option value="cocinero">Cocinero</option>
-                    <option value="mensajero">Mensajero</option>
+                    <option value="administrador">Jefe</option>
+                    <option value="cocinero">Chef</option>
+                    <option value="mensajero">Mesero</option>
                 </select>
             </div>
     
