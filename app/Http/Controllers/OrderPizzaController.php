@@ -1,156 +1,161 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api; // Corregido: Namespace para API
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\order_pizza;
+use App\Models\OrderPizza; // Corregido: Importación del modelo OrderPizza (PascalCase)
+use App\Models\Pizza; // Necesario para la relación
+use App\Models\ExtraIngredient; // Necesario para la relación
 
 class OrderPizzaController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Muestra una lista de todas las órdenes de pizza.
      */
     public function index()
     {
-        $orderPizzas = DB::table('order_pizza')
-        ->join('orders', 'order_pizza.order_id', '=', 'orders.id')
-        ->join('pizza_size', 'order_pizza.pizza_size_id', '=', 'pizza_size.id')
-        ->select(
-            'order_pizza.*',
-            'orders.id as order_id',
-            'orders.created_at as order_created_at',
-            'pizza_size.size as pizza_size_name', 
-            'pizza_size.price as pizza_size_price'
-        )
-        ->get();
-        
-
-    return view('order_pizza.index', compact('orderPizzas'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $orders = DB::table('orders')
-        ->orderBy('id')
-        ->get();
-
-    $pizzaSizes = DB::table('pizza_size')
-        ->orderBy('id')
-        ->get();
-
-    return view('order_pizza.new', [
-        'orders' => $orders,
-        'pizzaSizes' => $pizzaSizes
-    ]);
-
+        // Cargar las relaciones 'pizzas' y 'extraIngredients' para el listado
+        $orderPizzas = OrderPizza::with(['pizzas', 'extraIngredients'])->get();
+        // Retorna las órdenes como una respuesta JSON
+        return response()->json(['orderPizzas' => $orderPizzas]);
     }
 
     /**
      * Store a newly created resource in storage.
+     * Almacena una nueva orden de pizza en la base de datos.
      */
     public function store(Request $request)
     {
-        $orderPizza = new order_pizza();
+        // Valida los datos de entrada
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'delivery_address' => 'required|string|max:255',
+            'total_price' => 'required|numeric|min:0',
+            'status' => 'required|string|max:255',
+            'pizzas' => 'array', // Array de IDs de pizzas
+            'pizzas.*' => 'exists:pizzas,id', // Cada ID debe existir en la tabla pizzas
+            'extra_ingredients' => 'array', // Array de IDs de ingredientes extras
+            'extra_ingredients.*' => 'exists:extra_ingredients,id', // Cada ID debe existir
+        ]);
 
-        $orderPizza->order_id = $request->order_id;
-        $orderPizza->pizza_size_id = $request->pizza_size_id;
-        $orderPizza->quantity = $request->quantity;
-        $orderPizza->save();
+        // Crea una nueva instancia del modelo OrderPizza y asigna los valores
+        $orderPizza = OrderPizza::create([
+            'customer_name' => $request->customer_name,
+            'delivery_address' => $request->delivery_address,
+            'total_price' => $request->total_price,
+            'status' => $request->status,
+        ]);
 
-        $orderPizzas = DB::table('order_pizza')
-            ->join('orders', 'order_pizza.order_id', '=', 'orders.id')
-            ->join('pizza_size', 'order_pizza.pizza_size_id', '=', 'pizza_size.id')
-            ->select(
-                'order_pizza.*',
-                'orders.id as order_id',
-                'orders.created_at as order_created_at',
-                'pizza_size.price as pizza_size_price'
-            )
-            ->get();
+        // Sincronizar pizzas y extra_ingredients (adjuntar/desadjuntar relaciones)
+        if ($request->has('pizzas')) {
+            $orderPizza->pizzas()->sync($request->pizzas);
+        } else {
+            $orderPizza->pizzas()->detach(); // Si no se envían pizzas, desvincula todas
+        }
 
-        return view('order_pizza.index', ['orderPizzas' => $orderPizzas]); 
+        if ($request->has('extra_ingredients')) {
+            $orderPizza->extraIngredients()->sync($request->extra_ingredients);
+        } else {
+            $orderPizza->extraIngredients()->detach(); // Si no se envían ingredientes, desvincula todos
+        }
+
+        // Retorna una respuesta JSON con éxito y la orden creada
+        return response()->json(['success' => true, 'message' => 'Orden de pizza creada correctamente', 'orderPizza' => $orderPizza], 201); // 201 Created
     }
 
     /**
      * Display the specified resource.
+     * Muestra los detalles de una orden de pizza específica.
      */
     public function show(string $id)
     {
-        //
-    }
+        // Busca la orden por su ID y carga las relaciones 'pizzas' y 'extraIngredients'
+        $orderPizza = OrderPizza::with(['pizzas', 'extraIngredients'])->find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $orderPizza = order_pizza::find($id);
+        // Si la orden no se encuentra, retorna un error 404
+        if (!$orderPizza) {
+            return response()->json(['message' => 'Orden de pizza no encontrada'], 404);
+        }
 
-        $orders = DB::table('orders')
-            ->orderBy('id')
-            ->get();
-
-        $pizzaSizes = DB::table('pizza_size')
-            ->orderBy('id')
-            ->get();
-
-        return view('order_pizza.edit', [
-            'orderPizza' => $orderPizza,
-            'orders' => $orders,
-            'pizzaSizes' => $pizzaSizes
-        ]);
-        
+        // Retorna la orden encontrada como una respuesta JSON
+        return response()->json(['orderPizza' => $orderPizza]);
     }
 
     /**
      * Update the specified resource in storage.
+     * Actualiza una orden de pizza existente en la base de datos.
      */
     public function update(Request $request, string $id)
     {
-        $orderPizza = order_pizza::find($id);
+        // Valida los datos de entrada
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'delivery_address' => 'required|string|max:255',
+            'total_price' => 'required|numeric|min:0',
+            'status' => 'required|string|max:255',
+            'pizzas' => 'array',
+            'pizzas.*' => 'exists:pizzas,id',
+            'extra_ingredients' => 'array',
+            'extra_ingredients.*' => 'exists:extra_ingredients,id',
+        ]);
 
-        $orderPizza->order_id = $request->order_id;
-        $orderPizza->pizza_size_id = $request->pizza_size_id;
-        $orderPizza->quantity = $request->quantity;
-        $orderPizza->save();
+        // Busca la orden por su ID
+        $orderPizza = OrderPizza::find($id);
 
-        $orderPizzas = DB::table('order_pizza')
-            ->join('orders', 'order_pizza.order_id', '=', 'orders.id')
-            ->join('pizza_size', 'order_pizza.pizza_size_id', '=', 'pizza_size.id')
-            ->select(
-                'order_pizza.*',
-                'orders.id as order_id',
-                'orders.created_at as order_created_at',
-                'pizza_size.price as pizza_size_price'
-            )
-            ->get();
+        // Si la orden no se encuentra, retorna un error 404
+        if (!$orderPizza) {
+            return response()->json(['message' => 'Orden de pizza no encontrada'], 404);
+        }
 
-        return view('order_pizza.index', ['orderPizzas' => $orderPizzas]);
+        // Actualiza la orden con los datos validados
+        $orderPizza->update([
+            'customer_name' => $request->customer_name,
+            'delivery_address' => $request->delivery_address,
+            'total_price' => $request->total_price,
+            'status' => $request->status,
+        ]);
+
+        // Sincronizar pizzas y extra_ingredients
+        if ($request->has('pizzas')) {
+            $orderPizza->pizzas()->sync($request->pizzas);
+        } else {
+            $orderPizza->pizzas()->detach();
+        }
+
+        if ($request->has('extra_ingredients')) {
+            $orderPizza->extraIngredients()->sync($request->extra_ingredients);
+        } else {
+            $orderPizza->extraIngredients()->detach();
+        }
+
+        // Retorna una respuesta JSON con éxito y la orden actualizada
+        return response()->json(['success' => true, 'message' => 'Orden de pizza actualizada correctamente', 'orderPizza' => $orderPizza]);
     }
 
     /**
      * Remove the specified resource from storage.
+     * Elimina una orden de pizza de la base de datos.
      */
     public function destroy(string $id)
     {
-        $orderPizza = order_pizza::find($id);
+        // Busca la orden por su ID
+        $orderPizza = OrderPizza::find($id);
+
+        // Si la orden no se encuentra, retorna un error 404
+        if (!$orderPizza) {
+            return response()->json(['message' => 'Orden de pizza no encontrada'], 404);
+        }
+
+        // Desvincular relaciones antes de eliminar la orden
+        $orderPizza->pizzas()->detach();
+        $orderPizza->extraIngredients()->detach();
+
+        // Elimina la orden
         $orderPizza->delete();
 
-        $orderPizzas = DB::table('order_pizza')
-            ->join('orders', 'order_pizza.order_id', '=', 'orders.id')
-            ->join('pizza_size', 'order_pizza.pizza_size_id', '=', 'pizza_size.id')
-            ->select(
-                'order_pizza.*',
-                'orders.id as order_id',
-                'orders.created_at as order_created_at',
-                'pizza_size.price as pizza_size_price'
-            )
-            ->get();
-
-        return view('order_pizza.index', ['orderPizzas' => $orderPizzas]);
+        // Retorna una respuesta JSON con éxito
+        return response()->json(['success' => true, 'message' => 'Orden de pizza eliminada correctamente']);
     }
 }
