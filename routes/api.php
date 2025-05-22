@@ -3,7 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\PizzaController; // Importa tu PizzaController
-use App\Http\Controllers\api\BranchController; // ¡IMPORTANTE! Importa tu BranchController
+use App\Http\Controllers\api\BranchController; // Importa tu BranchController
+use App\Http\Controllers\api\ExtraIngredientController; // ¡NUEVO! Importa tu ExtraIngredientController
 
 /*
 |--------------------------------------------------------------------------
@@ -24,5 +25,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Rutas de recursos para Pizzas
 Route::resource('pizzas', PizzaController::class);
 
-// Rutas de recursos para Sucursales (¡CORREGIDO a 'branches' en minúscula y plural!)
+// Rutas de recursos para Sucursales
 Route::resource('branches', BranchController::class);
+
+// ¡NUEVO! Rutas de recursos para Ingredientes Extras
+Route::resource('extra_ingredients', ExtraIngredientController::class);
+
+// Puedes agregar otras rutas si las necesitas, por ejemplo:
+// Route::get('/pizzas-by-category/{category}', [PizzaController::class, 'getPizzasByCategory']);
