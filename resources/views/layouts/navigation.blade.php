@@ -19,43 +19,43 @@
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
-                        {{ __('users') }}
+                        {{ __('Usuarios') }}
                     </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')">
-                        {{ __('clients') }}
+                        {{ __('clientes') }}
                     </x-nav-link>
                 </div>
                 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.index')">
-                        {{ __('employees') }}
+                        {{ __('empleados') }}
                     </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                    <x-nav-link :href="route('extra_ingredients.index')" :active="request()->routeIs('extra_ingredients.index')">
-                    {{ __('Extra Ingredients') }}
+                    {{ __('Ingredientes Extras') }}
                   </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.index')">
-                    {{ __('Orders') }}
+                    {{ __('Ordenes') }}
                   </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                    <x-nav-link :href="route('order_extra_ingredient.index')" :active="request()->routeIs('order_extra_ingredient.index')">
-                    {{ __('Order Extra') }}
+                    {{ __('Ordenes Extras') }}
                   </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                    <x-nav-link :href="route('order_pizza.index')" :active="request()->routeIs('order_pizza.index')">
-                    {{ __('Order Pizza') }}
+                    {{ __('Orden Pizza') }}
                   </x-nav-link>
                 </div>
 
@@ -68,45 +68,33 @@
                 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('ingredents.index')" :active="request()->routeIs('ingredents.index')">
-                        {{ __('ingredients') }}
+                        {{ __('ingredientes') }}
                     </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('piza_size.index')" :active="request()->routeIs('piza_size.index')">
-                        {{ __('piza_size') }}
+                        {{ __('Tamaño') }}
                     </x-nav-link>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('pizza_ingredient.index')" :active="request()->routeIs('pizza_ingredient.index')">
-                        {{ __('pizza_ingredient') }}
+                        {{ __('Ingredientes Pizza') }}
                     </x-nav-link>
                 </div>
 
                 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('branches.index')" :active="request()->routeIs('branches.index')">
-                        {{ __('branches') }}
+                        {{ __('Sucursales') }}
                     </x-nav-link>
                 </div>
 
                 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.index')">
-                        {{ __('suppliers') }}
-                    </x-nav-link>
-                </div>
-
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('raw_materials.index')" :active="request()->routeIs('raw_materials.index')">
-                        {{ __('raw_materials') }}
-                    </x-nav-link>
-                </div>
-
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('pizza_raw_materials.index')" :active="request()->routeIs('pizza_raw_materials.index')">
-                        {{ __('pizza_raw_materials') }}
+                        {{ __('Proveedores') }}
                     </x-nav-link>
                 </div>
 

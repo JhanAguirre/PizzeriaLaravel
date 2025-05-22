@@ -4,23 +4,22 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrderPizzasTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('order_pizza', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('pizza_size_id');
-            $table->integer('quantity');
-            $table->timestamps();
-
-            // Relaciones foráneas
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('pizza_size_id')->references('id')->on('pizza_size')->onDelete('cascade');
+        Schema::create('order_pizzas', function (Blueprint $table) {
+            $table->id(); // Columna de ID autoincremental
+            $table->string('customer_name'); // Nombre del cliente
+            $table->string('delivery_address'); // Dirección de entrega
+            $table->decimal('total_price', 8, 2); // Precio total de la orden
+            $table->string('status')->default('Pendiente'); // Estado de la orden (ej: Pendiente, En Preparación, Entregada)
+            // Si tuvieras una relación con el usuario que hace la orden, iría aquí:
+            // $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamps(); // created_at y updated_at
         });
     }
 
@@ -31,4 +30,4 @@ class CreateOrderPizzasTable extends Migration
     {
         Schema::dropIfExists('order_pizzas');
     }
-}
+};
